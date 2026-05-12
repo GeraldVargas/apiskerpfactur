@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CodigoIrregularController;
 use App\Http\Controllers\Api\LecturaController;
 use App\Http\Controllers\Api\RutaController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ClienteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,4 +39,10 @@ Route::prefix('facturacion')->group(function () {
     Route::get('/lecturas/{id}', [LecturaController::class, 'show']);
     Route::put('/lecturas/{id}', [LecturaController::class, 'update']);
     Route::delete('/lecturas/{id}', [LecturaController::class, 'destroy']);
+
+    Route::get('/clientes', [ClienteController::class, 'index']);
+    Route::post('/clientes', [ClienteController::class, 'store']);
+    Route::get('/clientes/{id}', [ClienteController::class, 'show']);
+    Route::put('/clientes/{id}', [ClienteController::class, 'update']);
+    Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
 });
