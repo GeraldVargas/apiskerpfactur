@@ -20,7 +20,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->prefix('facturacion')->group(function () {
+Route::prefix('facturacion')->group(function () {
     Route::get('/codigos-irregulares', [CodigoIrregularController::class, 'index']);
     Route::post('/codigos-irregulares', [CodigoIrregularController::class, 'store']);
     Route::get('/codigos-irregulares/{id}', [CodigoIrregularController::class, 'show']);
