@@ -34,11 +34,7 @@ class CodigoIrregularController extends Controller
             $sortDirection = 'desc';
         }
 
-        $query = CodigoIrregular::query()
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            });
+        $query = CodigoIrregular::query();
 
         if ($search !== '') {
             $query->where(function ($q) use ($search): void {
@@ -61,8 +57,6 @@ class CodigoIrregularController extends Controller
         $data = $request->validate($this->storeRules());
 
         $item = DB::transaction(function () use ($data): CodigoIrregular {
-            $data['estado_reg'] = $data['estado_reg'] ?? 'activo';
-
             return CodigoIrregular::create($data);
         });
 
@@ -71,13 +65,7 @@ class CodigoIrregularController extends Controller
 
     public function show(int $id)
     {
-        $item = CodigoIrregular::query()
-            ->where('id_cod_irre', $id)
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            })
-            ->firstOrFail();
+        $item = CodigoIrregular::query()->findOrFail($id);
 
         return response()->json(['data' => $item]);
     }
@@ -86,13 +74,7 @@ class CodigoIrregularController extends Controller
     {
         $data = $request->validate($this->updateRules());
 
-        $item = CodigoIrregular::query()
-            ->where('id_cod_irre', $id)
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            })
-            ->firstOrFail();
+        $item = CodigoIrregular::query()->findOrFail($id);
 
         DB::transaction(function () use ($item, $data): void {
             $item->fill($data);
@@ -104,18 +86,10 @@ class CodigoIrregularController extends Controller
 
     public function destroy(int $id)
     {
-        $item = CodigoIrregular::query()
-            ->where('id_cod_irre', $id)
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            })
-            ->firstOrFail();
+        $item = CodigoIrregular::query()->findOrFail($id);
+        $item->delete();
 
-        $item->estado_reg = 'inactivo';
-        $item->save();
-
-        return response()->json(['message' => 'Registro inactivado correctamente.']);
+        return response()->json(['message' => 'Registro eliminado correctamente.']);
     }
 
     private function storeRules(): array

@@ -34,21 +34,13 @@ class LecturaController extends Controller
             $sortDirection = 'desc';
         }
 
-        $query = Lectura::query()
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            });
+        $query = Lectura::query();
 
         if ($search !== '') {
             $query->where(function ($q) use ($search): void {
-                $q->where('cod_ubica', 'ilike', "%{$search}%")
-                    ->orWhere('desc_restitucion', 'ilike', "%{$search}%");
-
-                if (is_numeric($search)) {
-                    $q->orWhere('nro_cuenta', (int) $search)
-                        ->orWhere('id_cliente', (int) $search);
-                }
+                $q->whereRaw('CAST(nro_cuenta AS TEXT) ILIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('CAST(periodo_lec AS TEXT) ILIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('CAST(gestion_lec AS TEXT) ILIKE ?', ["%{$search}%"]);
             });
         }
 
@@ -65,8 +57,6 @@ class LecturaController extends Controller
         $data = $request->validate($this->storeRules());
 
         $item = DB::transaction(function () use ($data): Lectura {
-            $data['estado_reg'] = $data['estado_reg'] ?? 'activo';
-
             return Lectura::create($data);
         });
 
@@ -75,13 +65,7 @@ class LecturaController extends Controller
 
     public function show(int $id)
     {
-        $item = Lectura::query()
-            ->where('id_lectura', $id)
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            })
-            ->firstOrFail();
+        $item = Lectura::query()->findOrFail($id);
 
         return response()->json(['data' => $item]);
     }
@@ -90,13 +74,7 @@ class LecturaController extends Controller
     {
         $data = $request->validate($this->updateRules());
 
-        $item = Lectura::query()
-            ->where('id_lectura', $id)
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            })
-            ->firstOrFail();
+        $item = Lectura::query()->findOrFail($id);
 
         DB::transaction(function () use ($item, $data): void {
             $item->fill($data);
@@ -108,18 +86,10 @@ class LecturaController extends Controller
 
     public function destroy(int $id)
     {
-        $item = Lectura::query()
-            ->where('id_lectura', $id)
-            ->where(function ($q): void {
-                $q->whereNull('estado_reg')
-                    ->orWhere('estado_reg', '!=', 'inactivo');
-            })
-            ->firstOrFail();
+        $item = Lectura::query()->findOrFail($id);
+        $item->delete();
 
-        $item->estado_reg = 'inactivo';
-        $item->save();
-
-        return response()->json(['message' => 'Registro inactivado correctamente.']);
+        return response()->json(['message' => 'Registro eliminado correctamente.']);
     }
 
     private function storeRules(): array
