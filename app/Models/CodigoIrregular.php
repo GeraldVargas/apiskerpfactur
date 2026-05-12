@@ -23,7 +23,6 @@ class CodigoIrregular extends Model
         'condicion_logica',
         'id_cod_gescom',
         'descripcion',
-        'estado_reg',
     ];
 
     public function parametro(): BelongsTo

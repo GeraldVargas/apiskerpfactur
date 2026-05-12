@@ -68,7 +68,6 @@ class Lectura extends Model
         'sw_debito_fiscal',
         'restitucion',
         'desc_restitucion',
-        'estado_reg',
     ];
 
     protected $casts = [
